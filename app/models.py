@@ -6,7 +6,7 @@ from .db import DBBaseClass
 
 
 class NoteModel(DBBaseClass):
-    __tablename__ = 'item'
+    __tablename__ = 'note'
     
     id = Column(Integer, primary_key=True)
     name = Column(String(150))

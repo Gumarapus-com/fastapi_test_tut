@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseNoteSchema(BaseModel):
@@ -11,11 +11,12 @@ class CreateNoteParams(BaseNoteSchema):
 
 
 class NoteDetailResponse(BaseNoteSchema):
+    model_config = ConfigDict(from_attributes=True)
     id: int
 
-    class Config:
-        # to be able to load sqlalchemy model
-        from_attributes = True
+    # class Config:
+    #     # to be able to load sqlalchemy model
+    #     from_attributes = True
 
 
 class UpdateNoteParams(BaseNoteSchema):

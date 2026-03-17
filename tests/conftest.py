@@ -2,17 +2,21 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 
 from app.app import create_app
-from app.db import create_db_engine, create_db_session
+from app.db import DBBaseClass, create_db_engine, create_db_session
 
 
 # This is important, to make different database
 # And using `memory` to use fresh empty database for each test
 DB_URL = 'sqlite+aiosqlite:///:memory:'
 
+# pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
-def db_engine():
+async def db_engine():
     engine = create_db_engine(DB_URL)
+    async with engine.begin() as conn:
+        await conn.run_sync(DBBaseClass.metadata.create_all)
     return engine
 
 
