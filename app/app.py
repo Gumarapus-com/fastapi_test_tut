@@ -1,24 +1,26 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from .db import create_db_engine, create_db_session, DBBaseClass
+from .db import create_db_engine, create_db_session, DBBase
 from .routers import router
 
 
 _db_engine = create_db_engine('sqlite+aiosqlite:///db.sqlite')
+_db_session_maker = create_db_session(_db_engine)
 
 
-def create_app(db_engine: AsyncEngine = _db_engine) -> FastAPI:
-    db_session_maker = create_db_session(db_engine)
-
+def create_app(
+    db_engine: AsyncEngine = _db_engine,
+    db_session_maker: async_sessionmaker[AsyncSession] = _db_session_maker
+) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # On start up
         #  Create database tables on start up
-        async with db_engine.begin() as conn:
-            await conn.run_sync(DBBaseClass.metadata.create_all)
+        async with db_session_maker().begin() as conn:
+            await conn.run_sync(DBBase.metadata.create_all)
 
         # on process
         yield

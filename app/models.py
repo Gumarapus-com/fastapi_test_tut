@@ -2,10 +2,10 @@ from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Integer, String
 
-from .db import DBBaseClass
+from .db import DBBase
 
 
-class NoteModel(DBBaseClass):
+class NoteModel(DBBase):
     __tablename__ = 'note'
     
     id = Column(Integer, primary_key=True)
