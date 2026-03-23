@@ -34,7 +34,8 @@ async def get(
 @router.put(
     '/{note_id}',
     status_code=202,
-    response_model=UpdateNoteResponse
+    # response_model=UpdateNoteResponse
+    response_model=NoteDetailResponse
 )
 async def update(
     note_id: int,
@@ -44,9 +45,12 @@ async def update(
     note = await get_note_by_id(db, note_id)
     if note is None:
         raise HTTPException(404, 'Not found')
+
     await update_note(db, note_id, args.name, args.desc)
-    # The update query run successfully
-    return {'success': True}
+
+    # get note (after updated)
+    note = await get_note_by_id(db, note_id)
+    return note
 
 
 @router.delete('/{note_id}', status_code=204)
