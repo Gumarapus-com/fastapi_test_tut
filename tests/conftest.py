@@ -16,47 +16,35 @@ from app.db_tables import DBBase
 
 # This is important, to make different database
 # And using `memory` to use fresh empty database for each test
-# DB_URL = 'sqlite+aiosqlite:///:memory:'
-DB_URL = 'sqlite+aiosqlite:///test.db'
-# pytestmark = pytest.mark.anyio
-
-engine = create_db_engine(DB_URL)
-
-
-# @pytest.fixture(scope="session")
-# def anyio_backend():
-#     return "asyncio"
+DB_URL = 'sqlite+aiosqlite:///:memory:'
 
 
 @pytest_asyncio.fixture(scope="session")
 async def db_engine() -> AsyncGenerator[AsyncEngine, None]:
-    async with engine.begin() as conn:
-        await conn.run_sync(DBBase.metadata.drop_all)
-        await conn.run_sync(DBBase.metadata.create_all)
-        yield engine
+    engine = create_db_engine(DB_URL)
+    yield engine
     await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="function")
 async def db_session_maker(db_engine):
     async with db_engine.connect() as conn:
+        await conn.run_sync(DBBase.metadata.drop_all)
+        await conn.run_sync(DBBase.metadata.create_all)
         yield create_db_session(conn)
 
 
 @pytest_asyncio.fixture(scope='function')
-# def db_session(db_session_maker) -> AsyncGenerator[AsyncSession, None]:
 async def db_session(db_session_maker) -> AsyncSession:
-    # async_session = AsyncSession(bind=db_connection)
-    async with db_session_maker() as sess:
-        yield sess
+    return db_session_maker()
 
 
 @pytest.fixture
-def app(db_engine, db_session_maker):
-    return create_app(db_engine, db_session_maker)
+def app(db_session_maker):
+    return create_app(db_session_maker)
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def http(app):
     async with AsyncClient(
         transport=ASGITransport(app=app),
@@ -65,7 +53,7 @@ async def http(app):
         yield http_client
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def a_note(db_session):
     return (
         await get_note_by_id(db_session, 1)

@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlalchemy import delete, update, select
+from sqlalchemy import delete, insert, update, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import NoteModel
@@ -11,9 +11,15 @@ async def create_note(
     name: str,
     desc: str | None = None,
 ) -> NoteModel:
-    note = NoteModel(name=name, desc=desc)
+    # query = insert(NoteModel).values(name=name, desc=desc)
+    # await db.execute(query)
+    # await db.commit()
+
+    note = NoteModel()
+    note.name = name
+    note.desc = desc
     db.add(note)
-    await db.commit()
+    print(await db.commit())
     return note
 
 
@@ -32,9 +38,17 @@ async def get_note_by_id(db: AsyncSession, note_id: int) -> NoteModel | None:
 async def update_note(
     db: AsyncSession,
     note_id: int,
-    name: str | None,
-    desc: str | None
+    name: str | None = None,
+    desc: str | None = None
 ) -> None:
+    # if name:
+    #     note.name = name
+    # if desc:
+    #     note.desc = desc
+    #
+    # db.add(note)
+    # await db.commit()
+    # return note
     query = (
         update(NoteModel)
         .values(name=name, desc=desc)

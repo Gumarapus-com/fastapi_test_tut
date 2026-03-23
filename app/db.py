@@ -15,11 +15,8 @@ class DBBase:
 
 
 def create_db_engine(db_url: str):
-    return create_async_engine(db_url, poolclass=NullPool)
+    return create_async_engine(db_url, poolclass=NullPool, echo=True)
 
 
 def create_db_session(db_engine):
-    return async_scoped_session(
-        async_sessionmaker(db_engine),
-        scopefunc=asyncio.current_task
-    )
+    return async_sessionmaker(db_engine, expire_on_commit=False)

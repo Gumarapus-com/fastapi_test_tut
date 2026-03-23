@@ -12,9 +12,14 @@ _db_session_maker = create_db_session(_db_engine)
 
 
 def create_app(
-    db_engine: AsyncEngine = _db_engine,
-    db_session_maker: async_sessionmaker[AsyncSession] = _db_session_maker
+    db_session_maker: async_sessionmaker[AsyncSession] | None = _db_session_maker
 ) -> FastAPI:
+    if db_session_maker is None:
+        db_engine = _db_engine
+        db_session_maker = _db_session_maker
+    else:
+        db_engine = None
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # On start up
@@ -27,7 +32,8 @@ def create_app(
 
         # On shutdown
         #  dispose DB connection pools
-        await db_engine.dispose()
+        if db_engine is not None:
+            await db_engine.dispose()
 
     app = FastAPI(
         debug=True,
