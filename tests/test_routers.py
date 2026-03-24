@@ -50,10 +50,20 @@ class TestUpdate:
         assert a_note.desc != response.json()['desc']
 
     async def test_not_found(self, http, a_note):
-        response = await http.put(f'/100', json={
+        response = await http.put('/100', json={
             'name': 'New Name',
             'desc': 'New desc'
         })
 
+        assert response.status_code == 404
+
+
+class TestDelete:
+    async def test_success(self, http, a_note):
+        response = await http.delete(f'/{a_note.id}')
+        assert response.status_code == 204
+
+    async def test_not_found(self, http, a_note):
+        response = await http.delete('/100')
         assert response.status_code == 404
 
