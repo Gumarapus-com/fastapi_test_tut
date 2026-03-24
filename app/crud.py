@@ -42,17 +42,19 @@ async def update_note(
     note_id: int,
     name: str | None = None,
     desc: str | None = None
-) -> None:
+) -> bool:
     query = (
         update(NoteModel)
         .values(name=name, desc=desc)
         .where(NoteModel.id == note_id)
     )
-    await db.execute(query)
+    result = await db.execute(query)
     await db.commit()
+    return result.rowcount > 0
 
 
-async def delete_note(db: AsyncSession, note_id: int) -> None:
+async def delete_note(db: AsyncSession, note_id: int) -> bool:
     query = delete(NoteModel).where(NoteModel.id == note_id)
-    await db.execute(query)
+    result = await db.execute(query)
     await db.commit()
+    return result.rowcount > 0

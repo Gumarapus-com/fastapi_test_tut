@@ -13,7 +13,9 @@ class DBBase:
 
 
 def create_db_engine(db_url: str) -> AsyncEngine:
-    return create_async_engine(db_url, poolclass=NullPool, echo=True)
+    # Use `echo=True` to verbosely print DB query
+    # return create_async_engine(db_url, poolclass=NullPool, echo=True)
+    return create_async_engine(db_url, poolclass=NullPool)
 
 
 def create_db_session(db_engine) -> async_sessionmaker:

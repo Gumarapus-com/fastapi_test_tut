@@ -40,8 +40,8 @@ async def db_session(db_session_maker) -> AsyncSession:
 
 
 @pytest.fixture
-def app(db_session_maker):
-    return create_app(db_session_maker)
+def app(db_engine, db_session_maker):
+    return create_app(db_engine, db_session_maker)
 
 
 @pytest_asyncio.fixture
@@ -55,7 +55,4 @@ async def http(app):
 
 @pytest_asyncio.fixture
 async def a_note(db_session):
-    return (
-        await get_note_by_id(db_session, 1)
-        or await create_note(db_session, 'A Note', 'Has description')
-    )
+    return await create_note(db_session, 'A Note', 'Has description')

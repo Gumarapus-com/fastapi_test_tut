@@ -1,6 +1,4 @@
-import asyncio
 import pytest
-from fastapi.exceptions import HTTPException
 
 from app.crud import (
     create_note,
@@ -9,7 +7,6 @@ from app.crud import (
     update_note,
     delete_note
 )
-from app.models import NoteModel
 
 
 # # This is the same as using the @pytest.mark.asyncio
@@ -60,32 +57,35 @@ class TestUpdateNote:
         desc = 'Note'
 
         note = await create_note(db_session, name, desc)
-        await update_note(
+        result = await update_note(
             db_session,
             note.id,
             name='updated name test',
             desc='Updated desc test'
         )
+        assert result is True
         note = await get_note_by_id(db_session, note.id)
 
         assert note.name != name
         assert note.desc != desc
 
     async def test_fail(self, db_session):
-        # with pytest.raises(HTTPException):
-        await update_note(
+        result = await update_note(
             db_session,
             100,           # an invalid note ID
             'New Note',
         )
+        assert result is False
 
 
 class TestDeleteNote:
     async def test_success(self, db_session, a_note):
-        await delete_note(db_session, a_note.id)
+        result = await delete_note(db_session, a_note.id)
+        assert result is True
+
         note = await get_note_by_id(db_session, a_note.id)
         assert note is None
 
     async def test_fail(self, db_session):
-        # with pytest.raises(HTTPException):
-        await delete_note(db_session, 100)
+        result = await delete_note(db_session, 100)
+        assert result is False
