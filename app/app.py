@@ -1,22 +1,20 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .db import create_db_engine, create_db_session, DBBase
 from .routers import router
 
-
-_db_engine = create_db_engine('sqlite+aiosqlite:///db.sqlite')
-_db_session_maker = create_db_session(_db_engine)
+DB_URL = 'sqlite+aiosqlite:///db.sqlite'
 
 
 def create_app(
-    db_session_maker: async_sessionmaker[AsyncSession] | None = _db_session_maker
+    db_session_maker: async_sessionmaker[AsyncSession] | None
 ) -> FastAPI:
     if db_session_maker is None:
-        db_engine = _db_engine
-        db_session_maker = _db_session_maker
+        db_engine = create_db_engine(DB_URL)
+        db_session_maker = create_db_session(db_engine)
     else:
         db_engine = None
 
@@ -35,11 +33,7 @@ def create_app(
         if db_engine is not None:
             await db_engine.dispose()
 
-    app = FastAPI(
-        debug=True,
-        description='Simple Rest API',
-        lifespan=lifespan
-    )
+    app = FastAPI(description='Simple Rest API', lifespan=lifespan)
     app.include_router(router)
 
     @app.middleware('http')

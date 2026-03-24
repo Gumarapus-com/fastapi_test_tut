@@ -1,9 +1,7 @@
-import asyncio
-
 from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
     create_async_engine,
-    async_sessionmaker,
-    async_scoped_session
+    async_sessionmaker
 )
 from sqlalchemy.orm import as_declarative
 from sqlalchemy.pool import NullPool
@@ -14,9 +12,9 @@ class DBBase:
     ...
 
 
-def create_db_engine(db_url: str):
+def create_db_engine(db_url: str) -> AsyncEngine:
     return create_async_engine(db_url, poolclass=NullPool, echo=True)
 
 
-def create_db_session(db_engine):
+def create_db_session(db_engine) -> async_sessionmaker:
     return async_sessionmaker(db_engine, expire_on_commit=False)

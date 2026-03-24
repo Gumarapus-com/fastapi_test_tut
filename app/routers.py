@@ -13,7 +13,6 @@ from .schemas import (
     CreateNoteParams,
     NoteDetailResponse,
     UpdateNoteParams,
-    UpdateNoteResponse
 )
 
 
@@ -34,7 +33,6 @@ async def get(
 @router.put(
     '/{note_id}',
     status_code=202,
-    # response_model=UpdateNoteResponse
     response_model=NoteDetailResponse
 )
 async def update(

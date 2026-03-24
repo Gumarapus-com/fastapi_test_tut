@@ -11,6 +11,8 @@ async def create_note(
     name: str,
     desc: str | None = None,
 ) -> NoteModel:
+    # -- Another way to use SQLAlchemy query --
+    #
     # query = insert(NoteModel).values(name=name, desc=desc)
     # await db.execute(query)
     # await db.commit()
@@ -19,7 +21,7 @@ async def create_note(
     note.name = name
     note.desc = desc
     db.add(note)
-    print(await db.commit())
+    await db.commit()
     return note
 
 
@@ -41,14 +43,6 @@ async def update_note(
     name: str | None = None,
     desc: str | None = None
 ) -> None:
-    # if name:
-    #     note.name = name
-    # if desc:
-    #     note.desc = desc
-    #
-    # db.add(note)
-    # await db.commit()
-    # return note
     query = (
         update(NoteModel)
         .values(name=name, desc=desc)
